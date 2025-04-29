@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using Unity.Mathematics;
-
+//adding this to test version control
 public class TerrainGenerator : MonoBehaviour
 {
     private int width = 100;
