@@ -22,11 +22,7 @@ public class TerrainGenerator : MonoBehaviour
         Terrain terrain = GetComponent<Terrain>(); 
         terrain.terrainData = GenerateTerrain(terrain.terrainData); 
     }
-    void Update()
-    {
-        
-        Debug.Log("Update running");
-    }
+
     void CachePerlinNoise()
     {
         perlinNoiseCache = new float[width, depth];
