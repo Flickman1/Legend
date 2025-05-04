@@ -4,13 +4,15 @@ public class PlayerController : MonoBehaviour
 {
     public float moveSpeed = 5f; // Speed at which the character moves
     public float turnSpeed = 700f; // Speed at which the character turns
-    
-    private CharacterController characterController;
+    public float jumpForce = 5f; // Force applied when the player jumps
+
+    private Rigidbody rb;
     private Camera mainCamera;
+    private bool isGrounded;
 
     void Start()
     {
-        characterController = GetComponent<CharacterController>();
+        rb = GetComponent<Rigidbody>();
         mainCamera = Camera.main; // Reference to the main camera
     }
 
@@ -33,14 +35,49 @@ public class PlayerController : MonoBehaviour
         // Calculate the movement vector
         Vector3 moveDirection = (forward * vertical + right * horizontal).normalized;
 
-        // Move the character
-        characterController.Move(moveDirection * moveSpeed * Time.deltaTime);
+        // Apply movement to the Rigidbody
+        MoveCharacter(moveDirection);
 
         // Rotate the character based on input
         if (moveDirection != Vector3.zero)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
+            RotateCharacter(moveDirection);
         }
+
+        // Jump logic (only allow jumping if on the ground)
+        if (isGrounded && Input.GetKeyDown(KeyCode.Space))
+        {
+            Jump();
+        }
+    }
+
+    private void MoveCharacter(Vector3 moveDirection)
+    {
+        // Apply movement force based on input
+        Vector3 velocity = moveDirection * moveSpeed;
+        velocity.y = rb.linearVelocity.y; // Maintain current vertical velocity (gravity and jumping)
+        rb.linearVelocity = velocity; // Apply the velocity to the Rigidbody
+    }
+
+    private void RotateCharacter(Vector3 moveDirection)
+    {
+        Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, turnSpeed * Time.deltaTime);
+    }
+
+    private void Jump()
+    {
+        rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse); // Apply an instant upward force to simulate jumping
+    }
+
+    // Ground detection to prevent double-jumping
+    private void OnCollisionStay(Collision collision)
+    {
+        isGrounded = true;
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        isGrounded = false;
     }
 }
